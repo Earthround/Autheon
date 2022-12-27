@@ -4,7 +4,8 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#F5F5F5",
+      main: "#420F60",
+      light: "#420F60",
     },
     success: {
       main: "#4caf50",
@@ -19,11 +20,19 @@ const theme = createTheme({
     common: {
       purple: "#420F60",
     },
+    background: {
+      default: "#F5F5F5",
+    },
   },
   typography: {
     button: {
       textTransform: "none",
       fontSize: 20,
+      opacity: 0.6,
+      stroke: 1.5,
+    },
+    h4: {
+      fontWeight: 500,
     },
     fontFamily: ["montserrat"].join(","),
   },
