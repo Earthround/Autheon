@@ -122,6 +122,7 @@ function CreateLetter() {
         to: selectedUser.name,
         toUid: selectedUser.uid,
         text: text,
+        read: false,
       });
       alert("Fanletter succesfully sent!");
     } catch (error) {

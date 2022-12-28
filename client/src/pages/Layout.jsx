@@ -170,7 +170,7 @@ const Layout = () => {
                   variant="h6"
                   noWrap
                   component={Link}
-                  to={"/"}
+                  to={"/Home"}
                   sx={{
                     mr: 2,
                     display: { xs: "none", md: "flex" },

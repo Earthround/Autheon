@@ -23,15 +23,59 @@ import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
 import Container from "@mui/material/Container";
 import Avatar from "@mui/material/Avatar";
+import Modal from "@mui/material/Modal";
 
-import accountTheme from "../account/accountTheme";
+import LetterTheme from "./LetterTheme";
 import { reload } from "firebase/auth";
 import { purple } from "@mui/material/colors";
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "1px solid rgba(66,15,96,0.7)",
+  boxShadow: 24,
+  p: 4,
+  borderRadius: 2,
+};
 
 function Fanmail() {
   const [currentUserAuth, loading, currentUserError] = useAuthState(auth);
   const [letters, setLetters] = useState([]);
   const [currentUser, setCurrentUser] = useState("");
+
+  const [modalTo, setModalTo] = useState("");
+  const [modalFrom, setModalFrom] = useState("");
+  const [modalText, setModalText] = useState("");
+
+  const [open, setOpen] = React.useState(false);
+
+  async function handleOpen(from, to, text, uid) {
+    try {
+      const q = query(collection(db, "fanletters"), where("uid", "==", uid));
+      let docID = "";
+      const snapdoc = await getDocs(q);
+      snapdoc.forEach((doc) => {
+        docID = doc.id;
+      });
+      const letterdoc = doc(db, "fanletters", docID);
+      await updateDoc(letterdoc, { read: true });
+    } catch (err) {
+      console.error(err);
+    }
+
+    setModalFrom(from);
+    setModalTo(to);
+    setModalText(text);
+    setOpen(true);
+  }
+  function handleClose() {
+    fetchLetters();
+    setOpen(false);
+  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -57,8 +101,8 @@ function Fanmail() {
 
   return (
     <>
-      <ThemeProvider theme={accountTheme}>
-        <Container component="main" maxWidth="sm">
+      <ThemeProvider theme={LetterTheme}>
+        <Container component="main" maxWidth="lg">
           <CssBaseline />
           <Box
             sx={{
@@ -74,7 +118,13 @@ function Fanmail() {
             </Typography>
 
             <Box sx={{ mt: 1 }}>
-              <Grid container spacing={2}>
+              <Grid
+                container
+                spacing={2}
+                marginTop={2}
+                justifyContent="center"
+                sx={{ ml: 0, width: "100%" }}
+              >
                 <Link
                   component={Link}
                   to="/fanmail/create"
@@ -84,21 +134,72 @@ function Fanmail() {
                   <Button
                     fullWidth
                     variant="contained"
-                    sx={{ mt: 2, mb: 2, height: "56px" }}
+                    sx={{ mb: 2, height: "56px", width: "210px" }}
                   >
                     New letter
                   </Button>
                 </Link>
               </Grid>
             </Box>
-            {letters.map((letter) => {
-              return (
-                <div key={letter.uid}>
-                  <h4>From: {letter.from}</h4>
-                  <p>{letter.text}</p>
-                </div>
-              );
-            })}
+            <Grid container spacing={2}>
+              {letters.map((letter) => {
+                let read = "";
+                if (letter.read) {
+                  read = "Opened";
+                } else {
+                  read = "Unopened";
+                }
+                return (
+                  <Grid item align="center" xs={4}>
+                    <Box
+                      sx={{
+                        width: 300,
+                        height: 200,
+                        boxShadow: 15,
+                        borderRadius: 1,
+                        padding: 2,
+                        margin: 2,
+                        backgroundColor: "common.white",
+                        "&:hover": {
+                          backgroundColor: "common.white",
+                          opacity: [0.9, 0.8, 0.7],
+                        },
+                        display: "grid",
+                        alignItems: "center",
+                      }}
+                      key={letter.uid}
+                      onClick={() =>
+                        handleOpen(
+                          letter.from,
+                          letter.to,
+                          letter.text,
+                          letter.uid
+                        )
+                      }
+                    >
+                      <div>To {letter.to}</div>
+                      <div>From {letter.from}</div>
+                      <div>{read}</div>
+                    </Box>
+                  </Grid>
+                );
+              })}
+            </Grid>
+            <Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box sx={style}>
+                <Typography id="modal-modal-title" variant="h6" component="h2">
+                  From: {modalFrom}
+                </Typography>
+                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
+                  {modalText}
+                </Typography>
+              </Box>
+            </Modal>
           </Box>
         </Container>
       </ThemeProvider>
