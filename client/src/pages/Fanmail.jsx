@@ -155,10 +155,10 @@ function Fanmail() {
                       sx={{
                         width: 300,
                         height: 200,
-                        boxShadow: 15,
+                        boxShadow: 5,
                         borderRadius: 1,
                         padding: 2,
-                        margin: 2,
+                        margin: 1,
                         backgroundColor: "common.white",
                         "&:hover": {
                           backgroundColor: "common.white",
